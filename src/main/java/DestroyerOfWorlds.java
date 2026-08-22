@@ -1,11 +1,10 @@
 import java.util.Scanner;
-import exceptions.HistoryEmptyException;
 
 public class DestroyerOfWorlds {
 
     //fields*****************************************************************
-    private static boolean exitStatus = false;
-    private static ChatHistory chatHistory = new ChatHistory(100);
+    private static boolean exit = false;
+    private static TaskList taskList = new TaskList(100);
 
     //getters****************************************************************
     public static String getConsoleInput() {
@@ -13,23 +12,44 @@ public class DestroyerOfWorlds {
         return s.nextLine();
     }
 
-    public static ChatHistory getHistory() {
-        return chatHistory;
+    public static TaskList getChatHistory() {
+        return taskList;
     }
 
-    //setters****************************************************************
+    //setters (return status string after)***********************************************
     /**
-     * exits the chatbot by setting exitStatus to true
+     * exits the chatbot by setting exit to true
+     * @return string to say bye to users
      */
-    public static void exit() {
-        exitStatus = true;
+    public static String exit() {
+        exit = true;
+        return "seeya cutie ;)";
+    }
+
+    /**
+     * sets a task in the chatbots task list as done/undone
+     * @param idx index of task to be set
+     * @param done if true, then set as done. if false, then undone
+     * @return string to inform users status of operation (e.g. task done, task undone, error)
+     */
+    public static String setTask(int idx, boolean done) {
+        return taskList.setTask(idx,done);
+    }
+
+    /**
+     * pushes a new task onto the chatbot's task list
+     * @param s desciption of task to be pushed
+     * @return string to inform users status of operation
+     */
+    public static String pushChatHistory(String s) {
+        Task t = new Task(s);
+        return taskList.push(t);
     }
 
     //booleans****************************************************************
     //<EMPTY>
 
     //misc********************************************************************
-
     /**
      * puts a text within the chatbots speech bubble
      * @param text string to be put in speech bubble
@@ -65,53 +85,56 @@ public class DestroyerOfWorlds {
      * @return consoleInput
      */
     public static String echo(String text) {
-        String echo = styleString(text);
-        System.out.println(echo);
-        return echo;
+        String s = styleString(text);
+        System.out.println(s);
+        return s;
     }
 
-    /**
-     * pushes to chat history a new string
-     * @param s string to be pushed
-     */
-    public static void pushChatHistory(String s) {
-        chatHistory.push(s);
-    }
+
 
     //MAIN CODE***************************************************************
     public static void main(String[] args) {
         String banner = "\nHello I'm DESTROYEROFWORLDS\nPrepare to meet you DOOM!\n____________________________________";
         System.out.println(banner);
-
         System.out.println("What do you want from me Nerd!?!?!, Can't you see I'm busy:");
 
         //begin the chatting session
-        while (exitStatus==false) {
+        while (!exit) {
             String consoleInput = getConsoleInput();
-            /*
-            if (Objects.equals(consoleInput, "bye")) {
-                //bye bye
-                echo("seeya cutie ;)");
-                exit();
-                break;
-            } else {
-                //talk back
-                echo(consoleInput);
-            }*/
 
             switch(consoleInput) {
                 case "bye":
-                    echo("seeya cutie ;)");
-                    exit();
+                    echo(exit());
                     break;
 
                 case "list":
-                    echo(getHistory().toString());
+                    echo(getChatHistory().toString());
                     break;
 
                 default:
-                    echo(consoleInput);
-                    pushChatHistory(consoleInput);
+                    if (consoleInput.startsWith("mark ")) {
+                        try {
+                            int num = Integer.parseInt(
+                                        consoleInput.substring(5));
+                            echo(setTask(num-1, true)); //passed check, mark task
+
+                        } catch (NumberFormatException e) {
+                            //exception caught, not a num, fall through.
+                        }
+
+                    } else if (consoleInput.startsWith("unmark ")) {
+                        try {
+                            int num = Integer.parseInt(
+                                    consoleInput.substring(7));
+                            echo(setTask(num-1,false));
+
+                        } catch (NumberFormatException e) {
+                            //exception caught, not a num, fall through.
+                        }
+
+                    } else {
+                        echo(pushChatHistory(consoleInput));
+                    }
 
             }
 
