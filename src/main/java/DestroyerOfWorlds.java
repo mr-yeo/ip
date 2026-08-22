@@ -177,7 +177,7 @@ public class DestroyerOfWorlds {
                         echo(pushChatHistory(description,startTime,endTime));
 
                     } else {
-                        echo(consoleInput);
+                        echo("what are you saying!?!?!");
                     }
 
             }
