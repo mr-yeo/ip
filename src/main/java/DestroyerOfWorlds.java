@@ -37,12 +37,35 @@ public class DestroyerOfWorlds {
     }
 
     /**
-     * pushes a new task onto the chatbot's task list
-     * @param s desciption of task to be pushed
-     * @return string to inform users status of operation
+     * pushes a new to-do task to the chatbots task list
+     * @param description description of to-do task
+     * @return string to inform users if operation succeeded
      */
-    public static String pushChatHistory(String s) {
-        Task t = new Task(s);
+    public static String pushChatHistory(String description) {
+        Task t = new Task(description);
+        return taskList.push(t);
+    }
+
+    /**
+     * pushes a new deadline task to the chatbots task list
+     * @param description description of deadline task
+     * @param deadline deadline of deadline task
+     * @return string to inform users if operation succeeded
+     */
+    public static String pushChatHistory(String description, String deadline) {
+        Task t = new DeadlineTask(description, deadline);
+        return taskList.push(t);
+    }
+
+    /**
+     * pushes a new event task to the chatbots task list
+     * @param description description of event task
+     * @param startTime start time of event task
+     * @param endTime end time of event task
+     * @return string to inform users if operation succeeded
+     */
+    public static String pushChatHistory(String description, String startTime, String endTime) {
+        Task t = new EventTask(description, startTime, endTime);
         return taskList.push(t);
     }
 
@@ -132,8 +155,29 @@ public class DestroyerOfWorlds {
                             //exception caught, not a num, fall through.
                         }
 
+                    } else if (consoleInput.startsWith("todo ")) {
+                        String description = consoleInput.substring(5);
+                        echo(pushChatHistory(description));
+
+                    } else if (consoleInput.startsWith("deadline ") && consoleInput.contains(" /by ")) {
+                        int idx = consoleInput.indexOf(" /by ");
+
+                        String description = consoleInput.substring(9,idx);
+                        String deadline = consoleInput.substring(idx+5);
+                        echo(pushChatHistory(description, deadline));
+
+                    } else if (consoleInput.startsWith("event ") && consoleInput.contains(" /from ")
+                                && consoleInput.contains(" /to ")
+                                        && consoleInput.indexOf(" /from ") < consoleInput.indexOf(" /to ")) {
+                        int startIdx = consoleInput.indexOf(" /from ");
+                        int endIdx = consoleInput.indexOf(" /to ");
+                        String description = consoleInput.substring(6,startIdx);
+                        String startTime = consoleInput.substring(startIdx+7,endIdx);
+                        String endTime = consoleInput.substring(endIdx+5);
+                        echo(pushChatHistory(description,startTime,endTime));
+
                     } else {
-                        echo(pushChatHistory(consoleInput));
+                        echo(consoleInput);
                     }
 
             }

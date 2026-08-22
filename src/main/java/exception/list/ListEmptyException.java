@@ -1,4 +1,4 @@
-package exceptions;
+package exception.list;
 
 public class ListEmptyException extends RuntimeException{
 

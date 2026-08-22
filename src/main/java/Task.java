@@ -1,6 +1,6 @@
 public class Task {
-    private boolean done = false;
-    private String description = "";
+    protected boolean done = false;
+    protected String description = "";
 
     //constructors
     public Task(String description) {
@@ -22,6 +22,8 @@ public class Task {
         this.done = done;
     }
 
+
+
     //booleans
 
     /**
@@ -37,10 +39,10 @@ public class Task {
     public String toString() {
         String s = "";
         if(this.done) {
-            s += "[X] " + this.description;
+            s += "[T][X] " + this.description;
         } else {
             //not done
-            s += "[ ] " + this.description;
+            s += "[T][ ] " + this.description;
         }
 
         return s;

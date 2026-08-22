@@ -1,10 +1,11 @@
-import exceptions.ListEmptyException;
-import exceptions.ListFullException;
+import exception.list.ListEmptyException;
+import exception.list.ListFullException;
 
 public class TaskList {
     private int maxCount = 100;
     private int count = 0;
     private Task[] list = new Task[maxCount]; //history of tasks
+
 
     //constructor
     public TaskList(int maxCount) {
@@ -61,7 +62,7 @@ public class TaskList {
             } else {
                 list[count]=t;
                 count +=1;
-                return t.toString();
+                return "Pushed: " + t.toString();
             }
         } catch (ListFullException e) {
             return "Error: "+e.getMessage();
