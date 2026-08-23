@@ -4,7 +4,7 @@ public class DestroyerOfWorlds {
 
     //fields*****************************************************************
     private static boolean exit = false;
-    private static TaskList taskList = new TaskList(100);
+    private static TaskList taskList = new TaskList();
 
     //getters****************************************************************
     public static String getConsoleInput() {
@@ -41,9 +41,10 @@ public class DestroyerOfWorlds {
      * @param description description of to-do task
      * @return string to inform users if operation succeeded
      */
-    public static String pushChatHistory(String description) {
+    public static String addToTaskList(String description) {
         Task t = new Task(description);
-        return taskList.push(t);
+        taskList.add(t);
+        return "Pushed: " + t.toString();
     }
 
     /**
@@ -52,9 +53,10 @@ public class DestroyerOfWorlds {
      * @param deadline deadline of deadline task
      * @return string to inform users if operation succeeded
      */
-    public static String pushChatHistory(String description, String deadline) {
+    public static String addToTaskList(String description, String deadline) {
         Task t = new DeadlineTask(description, deadline);
-        return taskList.push(t);
+        taskList.add(t);
+        return "Pushed: " + t.toString();
     }
 
     /**
@@ -64,9 +66,16 @@ public class DestroyerOfWorlds {
      * @param endTime end time of event task
      * @return string to inform users if operation succeeded
      */
-    public static String pushChatHistory(String description, String startTime, String endTime) {
+    public static String addToTaskList(String description, String startTime, String endTime) {
         Task t = new EventTask(description, startTime, endTime);
-        return taskList.push(t);
+        taskList.add(t);
+        return "Pushed: " + t.toString();
+    }
+
+    public static String removeFromTaskList(int idx) {
+        String s = taskList.get(idx).toString();
+        taskList.remove(idx);
+        return "Removed: " + s;
     }
 
     //booleans****************************************************************
@@ -157,14 +166,14 @@ public class DestroyerOfWorlds {
 
                     } else if (consoleInput.startsWith("todo ")) {
                         String description = consoleInput.substring(5);
-                        echo(pushChatHistory(description));
+                        echo(addToTaskList(description));
 
                     } else if (consoleInput.startsWith("deadline ") && consoleInput.contains(" /by ")) {
                         int idx = consoleInput.indexOf(" /by ");
 
                         String description = consoleInput.substring(9,idx);
                         String deadline = consoleInput.substring(idx+5);
-                        echo(pushChatHistory(description, deadline));
+                        echo(addToTaskList(description, deadline));
 
                     } else if (consoleInput.startsWith("event ") && consoleInput.contains(" /from ")
                                 && consoleInput.contains(" /to ")
@@ -174,9 +183,19 @@ public class DestroyerOfWorlds {
                         String description = consoleInput.substring(6,startIdx);
                         String startTime = consoleInput.substring(startIdx+7,endIdx);
                         String endTime = consoleInput.substring(endIdx+5);
-                        echo(pushChatHistory(description,startTime,endTime));
+                        echo(addToTaskList(description,startTime,endTime));
 
-                    } else {
+                    } else if (consoleInput.startsWith("delete ")) {
+                        try {
+                            int num = Integer.parseInt(
+                                    consoleInput.substring(7));
+                            echo(removeFromTaskList(num-1)); //passed check, mark task
+
+                        } catch (NumberFormatException e) {
+                            //exception caught, not a num, fall through.
+                        }
+                        
+                    } else{
                         echo("what are you saying!?!?!");
                     }
 
