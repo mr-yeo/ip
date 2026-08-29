@@ -1,7 +1,11 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class EventTask extends Task{
     //fields
-    private String startTime = "";
-    private String endTime = "";
+    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private LocalDateTime startTime = LocalDateTime.now().plusHours(1);;
+    private LocalDateTime endTime = LocalDateTime.now().plusHours(2);;
 
     //constructors
 
@@ -11,43 +15,72 @@ public class EventTask extends Task{
      * @param startTime the start time specified by the task
      * @param endTime the end time specified by the task
      */
+    public EventTask(String description, String startTime, String endTime, String format){
+        super(description);
+        DateTimeFormatter tempFormat = DateTimeFormatter.ofPattern(format);
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        this.startTime = LocalDateTime.parse(startTime,tempFormat);
+        this.endTime = LocalDateTime.parse(endTime,tempFormat);
+    }
+
     public EventTask(String description, String startTime, String endTime){
         super(description);
+
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        this.startTime = LocalDateTime.parse(startTime,this.timeFormat);
+        this.endTime = LocalDateTime.parse(endTime,this.timeFormat);
+    }
+
+    public EventTask(String description, LocalDateTime startTime, LocalDateTime endTime){
+        super(description);
+
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    /**
-     * constructs a done/undone event task
-     * @param description the description of the task
-     * @param done indicates if the task is done/undone
-     * @param startTime the start time specified by the task
-     * @param endTime the end time specified by the task
-     *
-     */
+    public EventTask(String description, boolean done, String startTime, String endTime, String format){
+        super(description, done);
+        DateTimeFormatter tempFormat = DateTimeFormatter.ofPattern(format);
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        this.startTime = LocalDateTime.parse(startTime,tempFormat);
+        this.endTime = LocalDateTime.parse(endTime,tempFormat);
+    }
+
     public EventTask(String description, boolean done, String startTime, String endTime){
-        super(description,done);
+        super(description, done);
+
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        this.startTime = LocalDateTime.parse(startTime,this.timeFormat);
+        this.endTime = LocalDateTime.parse(endTime,this.timeFormat);
+    }
+
+    public EventTask(String description, boolean done, LocalDateTime startTime, LocalDateTime endTime){
+        super(description, done);
+
+        this.timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
     //getters
-    public String getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public String getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
     //setters
-    public void setStartTime(String startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
+
 
     //boolean
 
@@ -56,10 +89,10 @@ public class EventTask extends Task{
     public String toSignature() {
         String s = "";
         if(this.done) {
-            s += "E|1|" + this.description + "|" + this.startTime + "|" + this.endTime;
+            s += "E|1|" + this.description + "|" + this.startTime.format(timeFormat) + "|" + this.endTime.format(timeFormat);
         } else {
             //not done
-            s += "E|0|" + this.description + "|" + this.startTime + "|" + this.endTime;
+            s += "E|0|" + this.description + "|" + this.startTime.format(timeFormat) + "|" + this.endTime.format(timeFormat);
         }
         return s;
     }
@@ -68,10 +101,10 @@ public class EventTask extends Task{
     public String toString() {
         String s = "";
         if(this.done) {
-            s += "[E][X] " + this.description + " (from: " + this.startTime + " to: " + this.endTime+ ")";
+            s += "[E][X] " + this.description + " (from: " + this.startTime.format(timeFormat) + " to: " + this.endTime.format(timeFormat)+ ")";
         } else {
             //not done
-            s += "[E][ ] " + this.description + " (from: " + this.startTime + " to: " + this.endTime+ ")";
+            s += "[E][ ] " + this.description + " (from: " + this.startTime.format(timeFormat) + " to: " + this.endTime.format(timeFormat)+ ")";
         }
 
         return s;

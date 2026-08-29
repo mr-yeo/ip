@@ -1,10 +1,14 @@
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class DestroyerOfWorlds {
 
@@ -12,6 +16,7 @@ public class DestroyerOfWorlds {
     private static boolean exit = false;
     private static TaskList tasks = new TaskList();
     private static File taskFile = new File("src/main/java/data/tasks.txt");
+    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     //getters****************************************************************
     public static String getConsoleInput() {
@@ -200,6 +205,10 @@ public class DestroyerOfWorlds {
         //          * valid text are strings that are non blank, and do not contain illegal chars.
         //          * example of valid regex block: \\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*
 
+        //COMMONLY USED REGEXS
+        String timeRegex = ""; //dd/MM/yyyy hh:mm
+        //timeRegex.matches(timeRegex);
+
         //COMMAND FORMATS************************************************************************
         //to-do formats:
         // <start> T | <0 or 1> | <valid desc text> <end>
@@ -223,17 +232,17 @@ public class DestroyerOfWorlds {
         // <start> D | <0 or 1> | <valid desc text> | <valid by-date text> <end>
         String deadline1Regex = "\\AD\\|" + "[01]\\|" +
                 "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
+                "\\s*\\z";
         Command deadline1Command = new Command(deadline1Regex);
         boolean deadline1Found = deadline1Command.find(0,text);
         //Pattern.compile(deadline1Regex);
 
-        // <start> deadline <space> <valid> <space> </by> <space> <valid> <end>
+        // <start> deadline <space><valid> <space></by><space> <valid by-date> <space><end>
         String deadline2Regex = "\\Adeadline\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s" + "/by\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s/by\\s" +
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
+                "\\s*\\z";
         Command deadline2Command = new Command(deadline2Regex);
         boolean deadline2Found = deadline2Command.find(0,text);
         //Pattern.compile(deadline2Regex);
@@ -243,9 +252,9 @@ public class DestroyerOfWorlds {
         // <start> E | <0 or 1> | <valid desc text> | <V from-date> | <V to-date> <end>
         String event1Regex = "\\AE\\|" + "[01]\\|" +
                 "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" + "\\s*\\|" +
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
+                "\\s*\\z";
         Command event1Command = new Command(event1Regex);
         boolean event1Found = event1Command.find(0,text);
         //Pattern.compile(event1Regex);
@@ -253,9 +262,9 @@ public class DestroyerOfWorlds {
         // <start>event<space> <valid> <space></from><space> <valid> <space></to><space> <valid> <end>
         String event2Regex = "\\Aevent\\s" +
                 "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s/from\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s/to\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" + "\\s*\\s/to\\s" +
+                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
+                "\\s*\\z";
         Command event2Command = new Command(event2Regex);
         boolean event2Found = event2Command.find(0,text);
         //Pattern.compile(event2Regex);
@@ -309,44 +318,60 @@ public class DestroyerOfWorlds {
             Task out = new Task(description, done);
             return new ArrayList<>(List.of(addToTasks(out)));
         } else if (deadline1Found) {//**********************************************************************
-            ArrayList<String> words = Util.toArrayList(text,'|');
+            try {
+                ArrayList<String> words = Util.toArrayList(text, '|');
 
-            boolean done = words.get(1).equals("1");
-            String description = words.get(2);
-            String byDate = words.get(3);
+                boolean done = words.get(1).equals("1");
+                String description = words.get(2);
+                LocalDateTime byDate = LocalDateTime.parse(words.get(3).trim(), timeFormat);
 
-            Task out = new DeadlineTask(description, done, byDate);
-            return new ArrayList<>(List.of("Added: " + out.toString(),out));
+                Task out = new DeadlineTask(description, done, byDate);
+                return new ArrayList<>(List.of("Added: " + out.toString(), out));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
+
         } else if (deadline2Found) {//**********************************************************************
-            ArrayList<String> words = Util.toArrayList(text,new ArrayList<>(List.of("deadline "," /by ")));
+            try {
+                ArrayList<String> words = Util.toArrayList(text,new ArrayList<>(List.of("deadline "," /by ")));
+                boolean done = false;
+                String description = words.get(1);
+                LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), timeFormat);
 
-            boolean done = false;
-            String description = words.get(1);
-            String byDate = words.get(2);
-
-            Task out = new DeadlineTask(description, done, byDate);
-            return new ArrayList<>(List.of(addToTasks(out)));
+                Task out = new DeadlineTask(description, done, byDate);
+                return new ArrayList<>(List.of(addToTasks(out)));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
 
         } else if (event1Found) {//**********************************************************************
-            ArrayList<String> words = Util.toArrayList(text,'|');
+            try {
+                ArrayList<String> words = Util.toArrayList(text, '|');
 
-            boolean done = words.get(1).equals("1");
-            String description = words.get(2);
-            String fromDate = words.get(3);
-            String toDate = words.get(4);
+                boolean done = words.get(1).equals("1");
+                String description = words.get(2);
+                LocalDateTime fromDate = LocalDateTime.parse(words.get(3).trim(),timeFormat);
+                LocalDateTime toDate = LocalDateTime.parse(words.get(4).trim(),timeFormat);
 
-            Task out = new EventTask(description, done, fromDate, toDate);
-            return new ArrayList<>(List.of("Added: " + out.toString(),out));
+                Task out = new EventTask(description, done, fromDate, toDate);
+                return new ArrayList<>(List.of("Added: " + out.toString(), out));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
         } else if (event2Found) {//**********************************************************************
-            ArrayList<String> words = Util.toArrayList(text,new ArrayList<>(List.of("event "," /from "," /to ")));
+            try {
+                ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("event ", " /from ", " /to ")));
 
-            boolean done = false;
-            String description = words.get(1);
-            String fromDate = words.get(2);
-            String toDate = words.get(3);
+                boolean done = false;
+                String description = words.get(1);
+                LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(),timeFormat);
+                LocalDateTime toDate = LocalDateTime.parse(words.get(3).trim(),timeFormat);
 
-            Task out = new EventTask(description, done, fromDate,toDate);
-            return new ArrayList<>(List.of(addToTasks(out)));
+                Task out = new EventTask(description, done, fromDate, toDate);
+                return new ArrayList<>(List.of(addToTasks(out)));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
 
         } else if (exitFound) {//**********************************************************************
             return new ArrayList<>(List.of(exit()));
