@@ -1,8 +1,16 @@
-import exception.list.ListEmptyException;
+import packages.exception.list.ListEmptyException;
 
 import java.util.ArrayList;
 
 public class TaskList extends ArrayList<Task> {
+
+    //constructors
+    /**
+     * constructs a task list
+     */
+    public TaskList() {
+        super();
+    }
 
     //setters
     /**
@@ -13,7 +21,7 @@ public class TaskList extends ArrayList<Task> {
      */
     public String setTask(int idx, boolean done) {
         try {
-            if(idx > this.size()) {
+            if(idx < 0 || idx > this.size()) {
                 throw new NullPointerException("task doesnt exist");
             } else {
                 this.get(idx).setDone(done);
@@ -33,9 +41,37 @@ public class TaskList extends ArrayList<Task> {
         }
     }
 
+
     /**
-     * returns the task list as a string of tasks in pointer-list form
-     * @return string of tasks in pointer-list form
+     * gets the tasklist signature. a signature is an internal
+     * string representation by the chatbot, it is not to be confused
+     * with the user level string representation given by toString().
+     * @return signature of tasklist(for internal use)
+     */
+    public String toSignature() {
+
+        if (this.isEmpty()) {
+            return "";
+        } else {
+            //history not empty
+            String out = "";
+
+            for (int i = 0; i<= this.size() -2; i++) {
+                int nextIdx = i+2;
+                out = out + this.get(i).toSignature() + "\n";
+            }
+
+            out = out + this.get(this.size() -1).toSignature();
+            return out;
+        }
+
+    }
+
+    //overrides
+    /**
+     * gets the user level String representation of this tasklist. unlike toSignature(),
+     * this string is the String representation of a tasklist, at the user level.
+     * @return user level String representation of tasklist
      */
     @Override
     public String toString() {
