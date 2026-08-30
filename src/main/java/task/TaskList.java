@@ -68,6 +68,34 @@ public class TaskList extends ArrayList<Task> {
 
 
     /**
+     * finds tasks whose description contains the given keyword (case-insensitive) and
+     * returns them as a numbered list, using each task's position in this task list.
+     * @param keyword search term to match against task descriptions
+     * @return formatted list of matching tasks, or an error message if none match
+     */
+    public String findTasks(String keyword) {
+        String lowerKeyword = keyword.toLowerCase();
+        StringBuilder matches = new StringBuilder();
+        int matchCount = 0;
+
+        for (int i = 0; i < this.size(); i++) {
+            Task task = this.get(i);
+            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
+                if (matchCount > 0) {
+                    matches.append("\n");
+                }
+                matches.append(i + 1).append(". ").append(task.toString());
+                matchCount++;
+            }
+        }
+
+        if (matchCount == 0) {
+            return "Error: no matching tasks found";
+        }
+        return "Here are the matching tasks in your list:\n" + matches;
+    }
+
+    /**
      * gets the tasklist signature. a signature is an internal
      * string representation by the chatbot, it is not to be confused
      * with the user level string representation given by toString().

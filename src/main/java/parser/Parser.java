@@ -128,6 +128,10 @@ public class Parser {
         Command deleteCommand = new Command(deleteRegex);
         boolean deleteFound = deleteCommand.find(0, text);
 
+        String findRegex = "\\Afind\\s+\\S[\\s\\S]*\\z";
+        Command findCommand = new Command(findRegex);
+        boolean findFound = findCommand.find(0, text);
+
         if (todo1Found) {
             ArrayList<String> words = Util.toArrayList(text, '|');
             boolean done = words.get(1).equals("1");
@@ -211,6 +215,9 @@ public class Parser {
             } catch (NumberFormatException e) {
                 return new ArrayList<>(List.of(e.getMessage()));
             }
+        } else if (findFound) {
+            String keyword = text.substring(5).trim();
+            return new ArrayList<>(List.of(tasks.findTasks(keyword)));
         } else {
             return new ArrayList<>(List.of("i dont know what you are saying"));
         }
