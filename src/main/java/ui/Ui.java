@@ -22,6 +22,9 @@ public class Ui {
      * @return the user command as a string
      */
     public String readCommand() {
+        if (!scanner.hasNextLine()) {
+            return "No input detected, closing";
+        }
         return scanner.nextLine();
     }
 

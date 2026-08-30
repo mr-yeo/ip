@@ -192,21 +192,21 @@ public class Parser {
             return new ArrayList<>(List.of(tasks.toString()));
         } else if (markFound) {
             try {
-                int num = Util.findInteger(text, 4);
+                int num = Util.extractIntegerFromIndex(text, 4);
                 return new ArrayList<>(List.of(tasks.setTask(num - 1, true)));
             } catch (NumberFormatException e) {
                 return new ArrayList<>(List.of(e.getMessage()));
             }
         } else if (unmarkFound) {
             try {
-                int num = Util.findInteger(text, 6);
+                int num = Util.extractIntegerFromIndex(text, 6);
                 return new ArrayList<>(List.of(tasks.setTask(num - 1, false)));
             } catch (NumberFormatException e) {
                 return new ArrayList<>(List.of(e.getMessage()));
             }
         } else if (deleteFound) {
             try {
-                int num = Util.findInteger(text, 6);
+                int num = Util.extractIntegerFromIndex(text, 6);
                 return new ArrayList<>(List.of(tasks.removeTask(num - 1)));
             } catch (NumberFormatException e) {
                 return new ArrayList<>(List.of(e.getMessage()));
