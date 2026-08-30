@@ -78,3 +78,19 @@ ensure that all Java code written is in accordance with the coding standards spe
 
 https://se-education.org/guides/conventions/java/intermediate.html
 
+## JUnit Test Coverage Target
+
+**Test Coverage Objective:** Achieve ~50% coverage by testing the highest-value methods.
+
+**Scope:** Focus JUnit tests on the top ~50% highest-value methods, prioritizing:
+- Complex business logic and algorithms
+- Core functionality critical to application behavior
+- Edge cases and boundary conditions for high-value methods
+- Error handling and exception paths
+
+**Maintenance Requirement:** JUnit tests must be updated after each code change to:
+- Reflect renamed or refactored methods
+- Cover new high-value methods added to the codebase
+- Maintain the 50% coverage target across all classes
+- Ensure all tests pass and accurately reflect current implementations
+

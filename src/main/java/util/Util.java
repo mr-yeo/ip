@@ -96,25 +96,31 @@ public class Util {
     }
 
     /**
-     * finds an integer value within some range of a text
-     * @param text the text to be searched
-     * @param start the start idx of the range
-     * @param end the end idx of the range
-     * @return the integer found
+     * Extracts an integer value from a substring consisting of a single integer value surrounded by optional whitespace.
+     * The substring (from start to end index) must contain only an integer and optional whitespace.
+     * Whitespace is trimmed before parsing.
+     * @param text the text containing the integer substring
+     * @param start the start index of the substring (inclusive)
+     * @param end the end index of the substring (exclusive)
+     * @return the integer value parsed from text.substring(start, end)
+     * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
-    public static int findInteger(String text, int start, int end) {
+    public static int extractIntegerInRange(String text, int start, int end) {
         int num = Integer.parseInt(
                 text.substring(start,end).trim());
         return num;
     }
 
     /**
-     * finds an integer value within some range of a text
-     * @param text the text to be searched
-     * @param start the start idx of the range
-     * @return the integer found in text.subString(start)
+     * Extracts an integer value from a substring consisting of a single integer value surrounded by optional whitespace.
+     * The substring (from start to end of text) must contain only an integer and optional whitespace.
+     * Whitespace is trimmed before parsing.
+     * @param text the text containing the integer substring
+     * @param start the start index from which to extract the integer (inclusive)
+     * @return the integer value parsed from text.substring(start)
+     * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
-    public static int findInteger(String text, int start) {
+    public static int extractIntegerFromIndex(String text, int start) {
         int num = Integer.parseInt(
                 text.substring(start).trim());
         return num;
