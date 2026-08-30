@@ -21,7 +21,7 @@ public class TaskList extends ArrayList<Task> {
      */
     public String setTask(int idx, boolean done) {
         try {
-            if(idx < 0 || idx > this.size()) {
+            if(idx < 0 || idx >= this.size()) {
                 throw new NullPointerException("task doesnt exist");
             } else {
                 this.get(idx).setDone(done);
@@ -38,6 +38,30 @@ public class TaskList extends ArrayList<Task> {
         } catch (NullPointerException e) {
             //task doesnt exist
             return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
+     * adds a task and returns the confirmation message for the user.
+     * @param task the task to add
+     * @return status message describing the added task
+     */
+    public String addTask(Task task) {
+        this.add(task);
+        return "Added: " + task.toString();
+    }
+
+    /**
+     * removes a task by index and returns the confirmation message for the user.
+     * @param idx internal list index to remove
+     * @return status message describing the removed task, or an error if invalid
+     */
+    public String removeTask(int idx) {
+        try {
+            Task removed = this.remove(idx);
+            return "Removed: " + removed.toString();
+        } catch (IndexOutOfBoundsException e) {
+            return "Error: task doesnt exist";
         }
     }
 

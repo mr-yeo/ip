@@ -11,7 +11,6 @@ public class Util {
      * @return array list of the string values in the text
      */
     public static ArrayList<String> toArrayList(String delimitedValues, char delimiter) {
-        //command format e.g. "word1|word2|word3|word4" ... -> arraylist<>([word1,word2,...])
         ArrayList<String> words = new ArrayList<>();
         int prevIdx = -1;
 
