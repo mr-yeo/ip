@@ -1,4 +1,4 @@
-package packages.exception.list;
+package exception;
 
 /**
  * Signals that an operation was attempted on an empty task list.

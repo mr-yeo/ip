@@ -1,5 +1,6 @@
-import packages.exception.list.ListEmptyException;
+package task;
 
+import exception.ListEmptyException;
 import java.util.ArrayList;
 
 public class TaskList extends ArrayList<Task> {
