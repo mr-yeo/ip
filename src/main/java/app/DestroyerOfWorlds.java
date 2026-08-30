@@ -1,5 +1,11 @@
+package app;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import parser.Parser;
+import storage.Storage;
+import task.TaskList;
+import ui.Ui;
 
 /**
  * Entry point and coordinator for the task manager application.
