@@ -65,18 +65,17 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 
-
 ## Git Conventions
 
-ensure that all git operations such as staging, commiting, and pushing are in accordance to the Git conventions specified within this URL
+All git operations in this repository must follow the SE-EDU Git conventions at:
 
 https://se-education.org/guides/conventions/git.html
 
-## Java Coding Standards 
-
-ensure that all Java code written is in accordance with the coding standards specified within this URL
+This applies to all future commits, branch names, and repository hygiene. Follow the required subject/body style, use imperative commit subjects, keep messages concise and meaningful, and prefer lightweight tags unless an annotated tag is specifically requested.
 
 https://se-education.org/guides/conventions/java/intermediate.html
+
+This applies to all new code, modified code, and code reviews in this repository. Follow the naming, layout, statement, and comment conventions in that guide without exception unless a project-specific instruction explicitly overrides them.
 
 ## JUnit Test Coverage Target
 

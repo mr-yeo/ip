@@ -20,5 +20,5 @@ _temp/
 text-ui-test/EXPECTED-UNIX.TXT
 
 #my test files
-/src/main/java/tester.java
 .vscode/settings.json
+/src/main/java/data/tasks.txt
