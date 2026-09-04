@@ -1,4 +1,0 @@
-T|0|hello
-D|0|hey hello|01/12/2003 12:00
-T|1|asdas
-T|0|1

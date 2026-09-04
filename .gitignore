@@ -21,4 +21,4 @@ text-ui-test/EXPECTED-UNIX.TXT
 
 #my test files
 .vscode/settings.json
-/src/main/java/data/tasks.txt
+/src/main/resources/data/tasks.txt
