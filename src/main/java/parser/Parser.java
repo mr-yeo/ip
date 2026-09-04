@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
 import app.DestroyerOfWorlds;
 import command.Command;
 import task.DeadlineTask;
@@ -66,45 +67,54 @@ public class Parser {
      * @return command result payload, with the status string as the first element
      */
     public static ArrayList<Object> parseCommand(String text, TaskList tasks) {
-        String todo1Regex = "\\AT\\|" + "[01]\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+        String todo1Regex = "\\AT\\|"
+                + "[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\z";
         Command todo1Command = new Command(todo1Regex);
         boolean todo1Found = todo1Command.find(0, text);
 
-        String todo2Regex = "\\Atodo\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" +
-                "\\z";
+        String todo2Regex = "\\Atodo\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\z";
         Command todo2Command = new Command(todo2Regex);
         boolean todo2Found = todo2Command.find(0, text);
 
-        String deadline1Regex = "\\AD\\|" + "[01]\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\|" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
-                "\\s*\\z";
+        String deadline1Regex = "\\AD\\|"
+                + "[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\z";
         Command deadline1Command = new Command(deadline1Regex);
         boolean deadline1Found = deadline1Command.find(0, text);
 
-        String deadline2Regex = "\\Adeadline\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s/by\\s" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
-                "\\s*\\z";
+        String deadline2Regex = "\\Adeadline\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\s/by\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\z";
         Command deadline2Command = new Command(deadline2Regex);
         boolean deadline2Found = deadline2Command.find(0, text);
 
-        String event1Regex = "\\AE\\|" + "[01]\\|" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\|" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" + "\\s*\\|" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
-                "\\s*\\z";
+        String event1Regex = "\\AE\\|"
+                + "[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\z";
         Command event1Command = new Command(event1Regex);
         boolean event1Found = event1Command.find(0, text);
 
-        String event2Regex = "\\Aevent\\s" +
-                "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*" + "\\s/from\\s" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" + "\\s*\\s/to\\s" +
-                "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}" +
-                "\\s*\\z";
+        String event2Regex = "\\Aevent\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
+                + "\\s/from\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\s/to\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
+                + "\\s*\\z";
         Command event2Command = new Command(event2Regex);
         boolean event2Found = event2Command.find(0, text);
 
@@ -157,7 +167,10 @@ public class Parser {
             }
         } else if (deadline2Found) {
             try {
-                ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("deadline ", " /by ")));
+                ArrayList<String> words = Util.toArrayList(
+                        text,
+                        new ArrayList<>(List.of("deadline ", " /by "))
+                );
                 boolean done = false;
                 String description = words.get(1);
                 LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
@@ -180,7 +193,10 @@ public class Parser {
             }
         } else if (event2Found) {
             try {
-                ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("event ", " /from ", " /to ")));
+                ArrayList<String> words = Util.toArrayList(
+                        text,
+                        new ArrayList<>(List.of("event ", " /from ", " /to "))
+                );
                 boolean done = false;
                 String description = words.get(1);
                 LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);

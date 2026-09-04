@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
     id 'com.gradleup.shadow' version '9.5.1'
 }
 
@@ -20,6 +21,10 @@ dependencies {
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+}
+
+checkstyle {
+    toolVersion = '10.18.2'
 }
 
 test {
@@ -48,7 +53,7 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke1.jar'
+    archiveFileName = 'destroyer-of-worlds.jar'
 }
 
 run {

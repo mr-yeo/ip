@@ -1,16 +1,20 @@
-package util;  //same package as the class being tested
-
-import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
-import java.util.List;
+package util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+/**
+ * Tests for utility parsing methods.
+ */
 public class UtilTest {
 
     // Tests for toArrayList(String, char)
     @Test
-    public void testToArrayListCharDelimiter_multipleValues(){
+    public void testToArrayListCharDelimiter_multipleValues() {
         String input = "apple,banana,cherry";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(3, result.size());
@@ -20,7 +24,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_singleValue(){
+    public void testToArrayListCharDelimiter_singleValue() {
         String input = "apple";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(1, result.size());
@@ -28,7 +32,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_emptyString(){
+    public void testToArrayListCharDelimiter_emptyString() {
         String input = "";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(1, result.size());
@@ -36,7 +40,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_valuesWithSpaces(){
+    public void testToArrayListCharDelimiter_valuesWithSpaces() {
         String input = "hello world,foo bar,test";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(3, result.size());
@@ -46,7 +50,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_differentDelimiter(){
+    public void testToArrayListCharDelimiter_differentDelimiter() {
         String input = "one|two|three|four";
         ArrayList<String> result = Util.toArrayList(input, '|');
         assertEquals(4, result.size());
@@ -57,7 +61,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_trailingDelimiter(){
+    public void testToArrayListCharDelimiter_trailingDelimiter() {
         String input = "apple,banana,";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(3, result.size());
@@ -67,7 +71,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_leadingDelimiter(){
+    public void testToArrayListCharDelimiter_leadingDelimiter() {
         String input = ",apple,banana";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(3, result.size());
@@ -77,7 +81,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_consecutiveDelimiters(){
+    public void testToArrayListCharDelimiter_consecutiveDelimiters() {
         String input = "a,,b,,c";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(5, result.size());
@@ -89,7 +93,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_onlyDelimiters(){
+    public void testToArrayListCharDelimiter_onlyDelimiters() {
         String input = ",,,";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(4, result.size());
@@ -100,7 +104,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_manyValues(){
+    public void testToArrayListCharDelimiter_manyValues() {
         String input = "a,b,c,d,e,f,g,h";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(8, result.size());
@@ -109,7 +113,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListCharDelimiter_numericValues(){
+    public void testToArrayListCharDelimiter_numericValues() {
         String input = "1,2,3,4,5";
         ArrayList<String> result = Util.toArrayList(input, ',');
         assertEquals(5, result.size());
@@ -119,7 +123,7 @@ public class UtilTest {
 
     // Tests for toArrayList(String, ArrayList<String>)
     @Test
-    public void testToArrayListStringDelimiter_multipleCustomDelimiters(){
+    public void testToArrayListStringDelimiter_multipleCustomDelimiters() {
         String input = "word1@@@word2%%word3";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("@@@");
@@ -132,7 +136,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_noDelimiters(){
+    public void testToArrayListStringDelimiter_noDelimiters() {
         // When no delimiters appear, pass empty delimiter array
         String input = "onlyword";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -142,7 +146,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_emptyString(){
+    public void testToArrayListStringDelimiter_emptyString() {
         // Empty string with no delimiters
         String input = "";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -152,7 +156,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_differentLengthDelimiters(){
+    public void testToArrayListStringDelimiter_differentLengthDelimiters() {
         String input = "a#b##c###d";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("#");
@@ -167,13 +171,16 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_originalTestCase(){
-        ArrayList<String> result = Util.toArrayList("a%%%b@@c&d", new ArrayList<>(List.of("%%%","@@","&")));
-        assertEquals(new ArrayList<>(List.of("a","b","c","d")), result);
+    public void testToArrayListStringDelimiter_originalTestCase() {
+        ArrayList<String> result = Util.toArrayList(
+                "a%%%b@@c&d",
+                new ArrayList<>(List.of("%%%", "@@", "&"))
+        );
+        assertEquals(new ArrayList<>(List.of("a", "b", "c", "d")), result);
     }
 
     @Test
-    public void testToArrayListStringDelimiter_leadingDelimiter(){
+    public void testToArrayListStringDelimiter_leadingDelimiter() {
         String input = "@@@word1##word2";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("@@@");
@@ -186,7 +193,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_trailingDelimiterMulti(){
+    public void testToArrayListStringDelimiter_trailingDelimiterMulti() {
         // Two @@@ delimiters in input requires two entries in delimiter array
         String input = "first@@@second@@@";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -200,7 +207,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_singleDelimiterMultipleOccurrences(){
+    public void testToArrayListStringDelimiter_singleDelimiterMultipleOccurrences() {
         // Three ## delimiters in input requires three entries in delimiter array
         String input = "a##b##c##d";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -216,7 +223,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_emptyValues(){
+    public void testToArrayListStringDelimiter_emptyValues() {
         // Five delimiters (@@, ##, @@, ##, @@) in input requires matching array
         String input = "@@##@@##@@";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -236,7 +243,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_longDelimiters(){
+    public void testToArrayListStringDelimiter_longDelimiters() {
         String input = "startXXXmiddleYYYend";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("XXX");
@@ -249,7 +256,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_manyDelimiters(){
+    public void testToArrayListStringDelimiter_manyDelimiters() {
         String input = "a###b$$c%%d@@e";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("###");
@@ -266,7 +273,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_singleCharDelimiters(){
+    public void testToArrayListStringDelimiter_singleCharDelimiters() {
         String input = "x|y&z";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("|");
@@ -279,7 +286,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_repeatingPattern(){
+    public void testToArrayListStringDelimiter_repeatingPattern() {
         // Four : delimiters in input requires four entries in delimiter array
         String input = "1:2:3:4:5";
         ArrayList<String> delimiters = new ArrayList<>();
@@ -297,7 +304,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_complexMixedDelimiters(){
+    public void testToArrayListStringDelimiter_complexMixedDelimiters() {
         String input = "p1|##p2@@p3&p4";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("|");
@@ -314,35 +321,35 @@ public class UtilTest {
 
     // Tests for extractIntegerInRange(String, int, int)
     @Test
-    public void testExtractIntegerInRange_basic(){
+    public void testExtractIntegerInRange_basic() {
         String text = "  42  ";
         int result = Util.extractIntegerInRange(text, 0, 6);
         assertEquals(42, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_negativeNumber(){
+    public void testExtractIntegerInRange_negativeNumber() {
         String text = "  -5  ";
         int result = Util.extractIntegerInRange(text, 0, 6);
         assertEquals(-5, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_singleDigit(){
+    public void testExtractIntegerInRange_singleDigit() {
         String text = "7";
         int result = Util.extractIntegerInRange(text, 0, 1);
         assertEquals(7, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_largeNumber(){
+    public void testExtractIntegerInRange_largeNumber() {
         String text = "99999";
         int result = Util.extractIntegerInRange(text, 0, 5);
         assertEquals(99999, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_zero(){
+    public void testExtractIntegerInRange_zero() {
         String text = "0";
         int result = Util.extractIntegerInRange(text, 0, 1);
         assertEquals(0, result);
@@ -350,35 +357,35 @@ public class UtilTest {
 
     // Tests for extractIntegerFromIndex(String, int)
     @Test
-    public void testExtractIntegerFromIndex_basic(){
+    public void testExtractIntegerFromIndex_basic() {
         String text = "  456  ";
         int result = Util.extractIntegerFromIndex(text, 0);
         assertEquals(456, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_withTrailingSpace(){
+    public void testExtractIntegerFromIndex_withTrailingSpace() {
         String text = "  789  ";
         int result = Util.extractIntegerFromIndex(text, 2);
         assertEquals(789, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_negativeNumber(){
+    public void testExtractIntegerFromIndex_negativeNumber() {
         String text = "  -25  ";
         int result = Util.extractIntegerFromIndex(text, 0);
         assertEquals(-25, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_noLeadingSpace(){
+    public void testExtractIntegerFromIndex_noLeadingSpace() {
         String text = "123";
         int result = Util.extractIntegerFromIndex(text, 0);
         assertEquals(123, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_zero(){
+    public void testExtractIntegerFromIndex_zero() {
         String text = "0";
         int result = Util.extractIntegerFromIndex(text, 0);
         assertEquals(0, result);
