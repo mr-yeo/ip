@@ -14,9 +14,11 @@ import ui.Ui;
 public class DestroyerOfWorlds {
     private static boolean exit = false;
     private static TaskList tasks = new TaskList();
-    private static final Storage STORAGE = new Storage("src/main/java/data/tasks.txt");
+    private static final Storage STORAGE = new Storage("src/main/resources/data/tasks.txt");
     private static final Ui UI = new Ui();
 
+    private DestroyerOfWorlds() {
+    }
     /**
      * Returns the current task list.
      *
@@ -89,7 +91,8 @@ public class DestroyerOfWorlds {
 
         while (!exit) {
             String consoleInput = UI.readCommand();
-            ArrayList<Object> qualifiedOut = Parser.parseCommand(consoleInput, tasks);
+            ArrayList<Object> qualifiedOut = Parser.parseCommand(
+                consoleInput, tasks);
             String statusString = (String) qualifiedOut.get(0);
             updateTaskFile();
             UI.echo(statusString);
