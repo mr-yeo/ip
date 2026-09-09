@@ -78,7 +78,11 @@ public class Util {
      * @return the integer value parsed from text.substring(start, end)
      * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
+
     public static int trimAndExtractInteger(String text, int start, int end) {
+        assert text != null : "Integer extraction requires input text";
+        assert start >= 0 && start <= end && end <= text.length()
+            : "Integer extraction range must be within the input text";
         return Integer.parseInt(text.substring(start, end).trim());
     }
 
@@ -92,6 +96,9 @@ public class Util {
      * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
     public static int trimAndExtractInteger(String text, int start) {
+        assert text != null : "Integer extraction requires input text";
+        assert start >= 0 && start <= text.length()
+            : "Integer extraction start must be within the input text";
         return Integer.parseInt(text.substring(start).trim());
     }
 }

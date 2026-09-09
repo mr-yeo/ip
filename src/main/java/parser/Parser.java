@@ -80,10 +80,13 @@ public class Parser {
     /**
      * Interprets a user command and returns the corresponding status/output payload.
      * @param text raw user input
-     * @param tasks the current task list being mutated by commands
+     * @param tasks the current task list to operate on
      * @return command result payload, with the status string as the first element
      */
     public static ArrayList<Object> parseCommand(String text, TaskList tasks) {
+
+        assert text != null : "Command text must not be null";
+        assert tasks != null : "Command parsing requires a task list";
         CommandType commandType = findCommandType(text);
 
         if (isAddCommandType(commandType)) {
@@ -204,12 +207,14 @@ public class Parser {
             String text, TaskList tasks, CommandType commandType) {
         if (commandType == CommandType.TODO_SIGNATURE) {
             ArrayList<String> words = Util.toArrayList(text, '|');
+            assert words.size() == 3 : "Matched todo signature must have three fields";
             boolean done = words.get(1).equals("1");
             String description = words.get(2);
             Task out = new Task(description, done);
             return new ArrayList<>(List.of("Added: " + out.toString(), out));
         } else if (commandType == CommandType.TODO_COMMAND) {
             ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("todo ")));
+            assert words.size() == 2 : "Matched todo command must have two fields";
             boolean done = false;
             String description = words.get(1);
             Task out = new Task(description, done);
@@ -217,6 +222,7 @@ public class Parser {
         } else if (commandType == CommandType.DEADLINE_SIGNATURE) {
             try {
                 ArrayList<String> words = Util.toArrayList(text, '|');
+                assert words.size() == 4 : "Matched deadline signature must have four fields";
                 boolean done = words.get(1).equals("1");
                 String description = words.get(2);
                 LocalDateTime byDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
@@ -231,6 +237,7 @@ public class Parser {
                         text,
                         new ArrayList<>(List.of("deadline ", " /by "))
                 );
+                assert words.size() == 3 : "Matched deadline command must have three fields";
                 boolean done = false;
                 String description = words.get(1);
                 LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
@@ -242,6 +249,7 @@ public class Parser {
         } else if (commandType == CommandType.EVENT_SIGNATURE) {
             try {
                 ArrayList<String> words = Util.toArrayList(text, '|');
+                assert words.size() == 5 : "Matched event signature must have five fields";
                 boolean done = words.get(1).equals("1");
                 String description = words.get(2);
                 LocalDateTime fromDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
@@ -257,6 +265,7 @@ public class Parser {
                         text,
                         new ArrayList<>(List.of("event ", " /from ", " /to "))
                 );
+                assert words.size() == 4 : "Matched event command must have four fields";
                 boolean done = false;
                 String description = words.get(1);
                 LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);

@@ -47,6 +47,7 @@ public class TaskList extends ArrayList<Task> {
      * @return status message describing the added task
      */
     public String addTask(Task task) {
+        assert task != null : "A task list must not contain null tasks";
         this.add(task);
         return "Added: " + task.toString();
     }
@@ -79,6 +80,7 @@ public class TaskList extends ArrayList<Task> {
 
         for (int i = 0; i < this.size(); i++) {
             Task task = this.get(i);
+            assert task != null : "A task list must not contain null tasks";
             if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
                 if (matchCount > 0) {
                     matches.append("\n");
@@ -107,9 +109,11 @@ public class TaskList extends ArrayList<Task> {
             String out = "";
 
             for (int i = 0; i <= this.size() - 2; i++) {
+                assert this.get(i) != null : "A task list must not contain null tasks";
                 out = out + this.get(i).toSignature() + "\n";
             }
 
+            assert this.get(this.size() - 1) != null : "A task list must not contain null tasks";
             out = out + this.get(this.size() - 1).toSignature();
             return out;
         }
@@ -130,10 +134,12 @@ public class TaskList extends ArrayList<Task> {
                 String out = "1. ";
 
                 for (int i = 0; i <= this.size() - 2; i++) {
+                    assert this.get(i) != null : "A task list must not contain null tasks";
                     int nextIdx = i + 2;
                     out = out + this.get(i).toString() + "\n" + nextIdx + ". ";
                 }
 
+                assert this.get(this.size() - 1) != null : "A task list must not contain null tasks";
                 out = out + this.get(this.size() - 1).toString();
                 return out;
             }

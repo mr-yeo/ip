@@ -53,6 +53,7 @@ public class EventTask extends Task {
      */
     public EventTask(String description, LocalDateTime startTime, LocalDateTime endTime) {
         super(description);
+        assert startTime != null && endTime != null : "Event tasks must have start and end times";
         this.timeFormat = DEFAULT_TIME_FORMAT;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -100,6 +101,7 @@ public class EventTask extends Task {
      */
     public EventTask(String description, boolean done, LocalDateTime startTime, LocalDateTime endTime) {
         super(description, done);
+        assert startTime != null && endTime != null : "Event tasks must have start and end times";
         this.timeFormat = DEFAULT_TIME_FORMAT;
         this.startTime = startTime;
         this.endTime = endTime;
