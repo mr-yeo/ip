@@ -22,6 +22,23 @@ public class Parser {
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    /** Identifies the supported command formats. */
+    private enum CommandType {
+        TODO_SIGNATURE,
+        TODO_COMMAND,
+        DEADLINE_SIGNATURE,
+        DEADLINE_COMMAND,
+        EVENT_SIGNATURE,
+        EVENT_COMMAND,
+        EXIT,
+        LIST,
+        MARK,
+        UNMARK,
+        DELETE,
+        FIND,
+        NONE
+    }
+
     /**
      * Parses a task signature string and returns the corresponding Task object.
      * Supported formats:
@@ -67,98 +84,142 @@ public class Parser {
      * @return command result payload, with the status string as the first element
      */
     public static ArrayList<Object> parseCommand(String text, TaskList tasks) {
+
         assert text != null : "Command text must not be null";
         assert tasks != null : "Command parsing requires a task list";
-        String todo1Regex = "\\AT\\|"
-                + "[01]\\|"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\z";
-        Command todo1Command = new Command(todo1Regex);
-        boolean todo1Found = todo1Command.find(0, text);
+        CommandType commandType = findCommandType(text);
 
-        String todo2Regex = "\\Atodo\\s"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\z";
-        Command todo2Command = new Command(todo2Regex);
-        boolean todo2Found = todo2Command.find(0, text);
+        if (isAddCommandType(commandType)) {
+            return handleAddCommand(text, tasks, commandType);
+        } else if (isIndexedTaskCommand(commandType)) {
+            return handleIndexedTaskCommand(text, tasks, commandType);
+        } else if (commandType == CommandType.FIND) {
+            String keyword = text.substring(5).trim();
+            return new ArrayList<>(List.of(tasks.findTasks(keyword)));
+        } else if (isSimpleCommand(commandType)) {
+            return handleSimpleCommand(tasks, commandType);
+        } else {
+            return new ArrayList<>(List.of("i dont know what you are saying"));
+        }
+    }
 
-        String deadline1Regex = "\\AD\\|"
-                + "[01]\\|"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\|"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\z";
-        Command deadline1Command = new Command(deadline1Regex);
-        boolean deadline1Found = deadline1Command.find(0, text);
+    /**
+     * Checks whether a command takes no arguments.
+     *
+     * @param commandType command type to check
+     * @return true for exit and list commands
+     */
+    private static boolean isSimpleCommand(CommandType commandType) {
+        return commandType == CommandType.EXIT || commandType == CommandType.LIST;
+    }
 
-        String deadline2Regex = "\\Adeadline\\s"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\s/by\\s"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\z";
-        Command deadline2Command = new Command(deadline2Regex);
-        boolean deadline2Found = deadline2Command.find(0, text);
+    /**
+     * Handles commands that take no arguments and do not select a task by index.
+     *
+     * @param tasks the current task list
+     * @param commandType the recognized command type
+     * @return command result payload
+     */
+    private static ArrayList<Object> handleSimpleCommand(TaskList tasks, CommandType commandType) {
+        if (commandType == CommandType.EXIT) {
+            return new ArrayList<>(List.of(DestroyerOfWorlds.exit()));
+        } else if (commandType == CommandType.LIST) {
+            return new ArrayList<>(List.of(tasks.toString()));
+        } else {
+            throw new IllegalArgumentException("Unsupported simple command type");
+        }
+    }
 
-        String event1Regex = "\\AE\\|"
-                + "[01]\\|"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\|"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\|"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\z";
-        Command event1Command = new Command(event1Regex);
-        boolean event1Found = event1Command.find(0, text);
+    /**
+     * Checks whether a command operates on a task selected by its list index.
+     *
+     * @param commandType command type to check
+     * @return true for mark, unmark, and delete commands
+     */
+    private static boolean isIndexedTaskCommand(CommandType commandType) {
+        return commandType == CommandType.MARK
+                || commandType == CommandType.UNMARK
+                || commandType == CommandType.DELETE;
+    }
 
-        String event2Regex = "\\Aevent\\s"
-                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*"
-                + "\\s/from\\s"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\s/to\\s"
-                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}"
-                + "\\s*\\z";
-        Command event2Command = new Command(event2Regex);
-        boolean event2Found = event2Command.find(0, text);
+    /**
+     * Executes a command that operates on a task selected by its list index.
+     *
+     * @param text raw user input
+     * @param tasks the current task list
+     * @param commandType the recognized indexed-task command
+     * @return command result payload
+     */
+    private static ArrayList<Object> handleIndexedTaskCommand(
+            String text, TaskList tasks, CommandType commandType) {
+        try {
+            int commandNameLength;
+            if (commandType == CommandType.MARK) {
+                commandNameLength = 4;
+            } else if (commandType == CommandType.UNMARK) {
+                commandNameLength = 6;
+            } else if (commandType == CommandType.DELETE) {
+                commandNameLength = 6;
+            } else {
+                throw new IllegalArgumentException("Unsupported indexed task command");
+            }
+            int taskNumber = Util.trimAndExtractInteger(text, commandNameLength);
+            String result;
+            if (commandType == CommandType.MARK) {
+                result = tasks.setTask(taskNumber - 1, true);
+            } else if (commandType == CommandType.UNMARK) {
+                result = tasks.setTask(taskNumber - 1, false);
+            } else if (commandType == CommandType.DELETE) {
+                result = tasks.removeTask(taskNumber - 1);
+            } else {
+                throw new IllegalArgumentException("Unsupported indexed task command");
+            }
+            return new ArrayList<>(List.of(result));
+        } catch (NumberFormatException e) {
+            return new ArrayList<>(List.of(e.getMessage()));
+        }
+    }
 
-        String exitRegex = "\\Abye\\s*\\z";
-        Command exitCommand = new Command(exitRegex);
-        boolean exitFound = exitCommand.find(0, text);
+    /**
+     * Checks whether a command type creates a task.
+     *
+     * @param commandType command type to check
+     * @return true if the command type is an add command type
+     */
+    private static boolean isAddCommandType(CommandType commandType) {
+        return commandType == CommandType.TODO_SIGNATURE
+                || commandType == CommandType.TODO_COMMAND
+                || commandType == CommandType.DEADLINE_SIGNATURE
+                || commandType == CommandType.DEADLINE_COMMAND
+                || commandType == CommandType.EVENT_SIGNATURE
+                || commandType == CommandType.EVENT_COMMAND;
+    }
 
-        String listRegex = "\\Alist\\s*\\z";
-        Command listCommand = new Command(listRegex);
-        boolean listFound = listCommand.find(0, text);
-
-        String markRegex = "\\Amark" + "\\s+" + "-?\\d+\\s*" + "\\z";
-        Command markCommand = new Command(markRegex);
-        boolean markFound = markCommand.find(0, text);
-
-        String unmarkRegex = "\\Aunmark" + "\\s+" + "-?\\d+\\s*" + "\\z";
-        Command unmarkCommand = new Command(unmarkRegex);
-        boolean unmarkFound = unmarkCommand.find(0, text);
-
-        String deleteRegex = "\\Adelete" + "\\s+" + "-?\\d+\\s*" + "\\z";
-        Command deleteCommand = new Command(deleteRegex);
-        boolean deleteFound = deleteCommand.find(0, text);
-
-        String findRegex = "\\Afind\\s+\\S[\\s\\S]*\\z";
-        Command findCommand = new Command(findRegex);
-        boolean findFound = findCommand.find(0, text);
-
-        if (todo1Found) {
+    /**
+     * Parses a recognized add-task command handles it accordingly.
+     *
+     * @param text raw user input
+     * @param tasks the current task list
+     * @param commandType the recognized add-command format
+     * @return command result payload, with the status string as the first element
+     */
+    private static ArrayList<Object> handleAddCommand(
+            String text, TaskList tasks, CommandType commandType) {
+        if (commandType == CommandType.TODO_SIGNATURE) {
             ArrayList<String> words = Util.toArrayList(text, '|');
             assert words.size() == 3 : "Matched todo signature must have three fields";
             boolean done = words.get(1).equals("1");
             String description = words.get(2);
             Task out = new Task(description, done);
             return new ArrayList<>(List.of("Added: " + out.toString(), out));
-        } else if (todo2Found) {
+        } else if (commandType == CommandType.TODO_COMMAND) {
             ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("todo ")));
             assert words.size() == 2 : "Matched todo command must have two fields";
             boolean done = false;
             String description = words.get(1);
             Task out = new Task(description, done);
             return new ArrayList<>(List.of(tasks.addTask(out)));
-        } else if (deadline1Found) {
+        } else if (commandType == CommandType.DEADLINE_SIGNATURE) {
             try {
                 ArrayList<String> words = Util.toArrayList(text, '|');
                 assert words.size() == 4 : "Matched deadline signature must have four fields";
@@ -170,7 +231,7 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
-        } else if (deadline2Found) {
+        } else if (commandType == CommandType.DEADLINE_COMMAND) {
             try {
                 ArrayList<String> words = Util.toArrayList(
                         text,
@@ -185,7 +246,7 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
-        } else if (event1Found) {
+        } else if (commandType == CommandType.EVENT_SIGNATURE) {
             try {
                 ArrayList<String> words = Util.toArrayList(text, '|');
                 assert words.size() == 5 : "Matched event signature must have five fields";
@@ -198,7 +259,7 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
-        } else if (event2Found) {
+        } else if (commandType == CommandType.EVENT_COMMAND) {
             try {
                 ArrayList<String> words = Util.toArrayList(
                         text,
@@ -214,36 +275,78 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
-        } else if (exitFound) {
-            return new ArrayList<>(List.of(DestroyerOfWorlds.exit()));
-        } else if (listFound) {
-            return new ArrayList<>(List.of(tasks.toString()));
-        } else if (markFound) {
-            try {
-                int num = Util.extractIntegerFromIndex(text, 4);
-                return new ArrayList<>(List.of(tasks.setTask(num - 1, true)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
-        } else if (unmarkFound) {
-            try {
-                int num = Util.extractIntegerFromIndex(text, 6);
-                return new ArrayList<>(List.of(tasks.setTask(num - 1, false)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
-        } else if (deleteFound) {
-            try {
-                int num = Util.extractIntegerFromIndex(text, 6);
-                return new ArrayList<>(List.of(tasks.removeTask(num - 1)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
-        } else if (findFound) {
-            String keyword = text.substring(5).trim();
-            return new ArrayList<>(List.of(tasks.findTasks(keyword)));
         } else {
-            return new ArrayList<>(List.of("i dont know what you are saying"));
+            throw new IllegalArgumentException("Unsupported add command type");
         }
+    }
+
+    /**
+     * Identifies the command type represented by the input text.
+     *
+     * @param text raw user input
+     * @return the matching command type, or {@code NONE} when no command matches
+     */
+    private static CommandType findCommandType(String text) {
+        String todoSignatureRegex = "\\AT\\|[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\z";
+        if (new Command(todoSignatureRegex).find(0, text)) {
+            return CommandType.TODO_SIGNATURE;
+        }
+
+        String todoCommandRegex = "\\Atodo\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\z";
+        if (new Command(todoCommandRegex).find(0, text)) {
+            return CommandType.TODO_COMMAND;
+        }
+
+        String deadlineSignatureRegex = "\\AD\\|[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\z";
+        if (new Command(deadlineSignatureRegex).find(0, text)) {
+            return CommandType.DEADLINE_SIGNATURE;
+        }
+
+        String deadlineCommandRegex = "\\Adeadline\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\s/by\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\z";
+        if (new Command(deadlineCommandRegex).find(0, text)) {
+            return CommandType.DEADLINE_COMMAND;
+        }
+
+        String eventSignatureRegex = "\\AE\\|[01]\\|"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\|"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\z";
+        if (new Command(eventSignatureRegex).find(0, text)) {
+            return CommandType.EVENT_SIGNATURE;
+        }
+
+        String eventCommandRegex = "\\Aevent\\s"
+                + "\\s*[\\S&&[^\\|]][\\s\\S&&[^\\|]]*\\s/from\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\s/to\\s"
+                + "\\s*\\d{2}/\\d{2}/\\d{4}\\s\\d{2}:\\d{2}\\s*\\z";
+        if (new Command(eventCommandRegex).find(0, text)) {
+            return CommandType.EVENT_COMMAND;
+        }
+
+        if (new Command("\\Abye\\s*\\z").find(0, text)) {
+            return CommandType.EXIT;
+        }
+        if (new Command("\\Alist\\s*\\z").find(0, text)) {
+            return CommandType.LIST;
+        }
+        if (new Command("\\Amark\\s+-?\\d+\\s*\\z").find(0, text)) {
+            return CommandType.MARK;
+        }
+        if (new Command("\\Aunmark\\s+-?\\d+\\s*\\z").find(0, text)) {
+            return CommandType.UNMARK;
+        }
+        if (new Command("\\Adelete\\s+-?\\d+\\s*\\z").find(0, text)) {
+            return CommandType.DELETE;
+        }
+        if (new Command("\\Afind\\s+\\S[\\s\\S]*\\z").find(0, text)) {
+            return CommandType.FIND;
+        }
+        return CommandType.NONE;
     }
 }

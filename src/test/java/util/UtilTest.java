@@ -319,75 +319,75 @@ public class UtilTest {
         assertEquals("p4", result.get(3));
     }
 
-    // Tests for extractIntegerInRange(String, int, int)
+    // Tests for trimAndExtractInteger(String, int, int)
     @Test
-    public void testExtractIntegerInRange_basic() {
+    public void testTrimAndExtractInteger_withRange_basic() {
         String text = "  42  ";
-        int result = Util.extractIntegerInRange(text, 0, 6);
+        int result = Util.trimAndExtractInteger(text, 0, 6);
         assertEquals(42, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_negativeNumber() {
+    public void testTrimAndExtractInteger_withRange_negativeNumber() {
         String text = "  -5  ";
-        int result = Util.extractIntegerInRange(text, 0, 6);
+        int result = Util.trimAndExtractInteger(text, 0, 6);
         assertEquals(-5, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_singleDigit() {
+    public void testTrimAndExtractInteger_withRange_singleDigit() {
         String text = "7";
-        int result = Util.extractIntegerInRange(text, 0, 1);
+        int result = Util.trimAndExtractInteger(text, 0, 1);
         assertEquals(7, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_largeNumber() {
+    public void testTrimAndExtractInteger_withRange_largeNumber() {
         String text = "99999";
-        int result = Util.extractIntegerInRange(text, 0, 5);
+        int result = Util.trimAndExtractInteger(text, 0, 5);
         assertEquals(99999, result);
     }
 
     @Test
-    public void testExtractIntegerInRange_zero() {
+    public void testTrimAndExtractInteger_withRange_zero() {
         String text = "0";
-        int result = Util.extractIntegerInRange(text, 0, 1);
+        int result = Util.trimAndExtractInteger(text, 0, 1);
         assertEquals(0, result);
     }
 
-    // Tests for extractIntegerFromIndex(String, int)
+    // Tests for trimAndExtractInteger(String, int)
     @Test
-    public void testExtractIntegerFromIndex_basic() {
+    public void testTrimAndExtractInteger_fromIndex_basic() {
         String text = "  456  ";
-        int result = Util.extractIntegerFromIndex(text, 0);
+        int result = Util.trimAndExtractInteger(text, 0);
         assertEquals(456, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_withTrailingSpace() {
+    public void testTrimAndExtractInteger_fromIndex_withTrailingSpace() {
         String text = "  789  ";
-        int result = Util.extractIntegerFromIndex(text, 2);
+        int result = Util.trimAndExtractInteger(text, 2);
         assertEquals(789, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_negativeNumber() {
+    public void testTrimAndExtractInteger_fromIndex_negativeNumber() {
         String text = "  -25  ";
-        int result = Util.extractIntegerFromIndex(text, 0);
+        int result = Util.trimAndExtractInteger(text, 0);
         assertEquals(-25, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_noLeadingSpace() {
+    public void testTrimAndExtractInteger_fromIndex_noLeadingSpace() {
         String text = "123";
-        int result = Util.extractIntegerFromIndex(text, 0);
+        int result = Util.trimAndExtractInteger(text, 0);
         assertEquals(123, result);
     }
 
     @Test
-    public void testExtractIntegerFromIndex_zero() {
+    public void testTrimAndExtractInteger_fromIndex_zero() {
         String text = "0";
-        int result = Util.extractIntegerFromIndex(text, 0);
+        int result = Util.trimAndExtractInteger(text, 0);
         assertEquals(0, result);
     }
 }
