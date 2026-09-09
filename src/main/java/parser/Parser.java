@@ -92,32 +92,62 @@ public class Parser {
             return new ArrayList<>(List.of(DestroyerOfWorlds.exit()));
         } else if (commandType == CommandType.LIST) {
             return new ArrayList<>(List.of(tasks.toString()));
-        } else if (commandType == CommandType.MARK) {
-            try {
-                int num = Util.trimAndExtractInteger(text, 4);
-                return new ArrayList<>(List.of(tasks.setTask(num - 1, true)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
-        } else if (commandType == CommandType.UNMARK) {
-            try {
-                int num = Util.trimAndExtractInteger(text, 6);
-                return new ArrayList<>(List.of(tasks.setTask(num - 1, false)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
-        } else if (commandType == CommandType.DELETE) {
-            try {
-                int num = Util.trimAndExtractInteger(text, 6);
-                return new ArrayList<>(List.of(tasks.removeTask(num - 1)));
-            } catch (NumberFormatException e) {
-                return new ArrayList<>(List.of(e.getMessage()));
-            }
+        } else if (isIndexedTaskCommand(commandType)) {
+            return handleIndexedTaskCommand(text, tasks, commandType);
         } else if (commandType == CommandType.FIND) {
             String keyword = text.substring(5).trim();
             return new ArrayList<>(List.of(tasks.findTasks(keyword)));
         } else {
             return new ArrayList<>(List.of("i dont know what you are saying"));
+        }
+    }
+        /**
+         * Checks whether a command operates on a task selected by its list index.
+         *
+         * @param commandType command type to check
+         * @return true for mark, unmark, and delete commands
+         */
+        private static boolean isIndexedTaskCommand(CommandType commandType) {
+            return commandType == CommandType.MARK
+                    || commandType == CommandType.UNMARK
+                    || commandType == CommandType.DELETE;
+        }
+
+        /**
+         * Executes a command that operates on a task selected by its list index.
+         *
+         * @param text raw user input
+         * @param tasks the current task list
+         * @param commandType the recognized indexed-task command
+         * @return command result payload
+         */
+    private static ArrayList<Object> handleIndexedTaskCommand(
+            String text, TaskList tasks, CommandType commandType) {
+        try {
+            int commandNameLength;
+            if (commandType == CommandType.MARK) {
+                commandNameLength = 4;
+            } else if (commandType == CommandType.UNMARK) {
+                commandNameLength = 6;
+            } else if (commandType == CommandType.DELETE) {
+                commandNameLength = 6;
+            } else {
+                throw new IllegalArgumentException("Unsupported indexed task command");
+            }
+            int taskNumber = Util.trimAndExtractInteger(text, commandNameLength);
+            String result;
+            if (commandType == CommandType.MARK) {
+                result = tasks.setTask(taskNumber - 1, true);
+            } else if (commandType == CommandType.UNMARK) {
+                result = tasks.setTask(taskNumber - 1, false);
+            } else if (commandType == CommandType.DELETE) {
+                result = tasks.removeTask(taskNumber - 1);
+            } else {
+                throw new IllegalArgumentException("Unsupported indexed task command");
+            }
+            return new ArrayList<>(List.of(result));
+        } catch (NumberFormatException e) {
+            return new ArrayList<>(List.of(e.getMessage()));
         }
     }
 
