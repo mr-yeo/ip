@@ -69,7 +69,8 @@ public class Util {
     }
 
     /**
-     * Extracts an integer value from a substring of text containing only an integer.
+     * Trim and extracts an integer value from a substring of text containing only an integer 
+     * surrounded by whitespace.
      *
      * @param text the text containing the integer substring
      * @param start the start index of the substring (inclusive)
@@ -77,19 +78,20 @@ public class Util {
      * @return the integer value parsed from text.substring(start, end)
      * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
-    public static int extractIntegerInRange(String text, int start, int end) {
+    public static int trimAndExtractInteger(String text, int start, int end) {
         return Integer.parseInt(text.substring(start, end).trim());
     }
 
     /**
-     * Extracts an integer value from a substring beginning at the given index.
+     * Trim and extracts an integer value from a substring containing only an integer 
+     * surrounded by whitespace
      *
      * @param text the text containing the integer substring
      * @param start the start index from which to extract the integer (inclusive)
      * @return the integer value parsed from text.substring(start)
      * @throws NumberFormatException if the substring cannot be parsed as a single integer
      */
-    public static int extractIntegerFromIndex(String text, int start) {
+    public static int trimAndExtractInteger(String text, int start) {
         return Integer.parseInt(text.substring(start).trim());
     }
 }
