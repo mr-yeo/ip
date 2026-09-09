@@ -8,6 +8,33 @@
 
 ## Test cases
 
+### TC-02: Reject duplicate todo tasks
+
+**Aim:** Verify that adding the same todo twice does not add a second task.
+
+**Initial state:** The task data file does not contain `buy milk`.
+
+**Inputs:**
+
+```text
+todo buy milk
+todo buy milk
+```
+
+**Expected output for the first input:**
+
+```text
+Added: [T][ ] buy milk
+```
+
+**Expected output for the second input:**
+
+```text
+Error: task already exists
+```
+
+**Expected `list` result:** Only one `buy milk` task is present.
+
 ### TC-01: List existing tasks
 
 **Aim:** Verify that the `list` command displays all tasks with correct formatting (1-based numbering, task type, completion status, and details).

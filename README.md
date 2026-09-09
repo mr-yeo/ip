@@ -23,3 +23,17 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Duplicate tasks
+
+The `todo`, `deadline`, and `event` commands reject a new task when an equivalent task already exists.
+The comparison uses the exact task description and task type. Deadline tasks must also have the same deadline,
+and event tasks must have the same start and end times. Completion status is ignored.
+
+When a duplicate is detected, the task list is unchanged and the application displays:
+
+```text
+Error: task already exists
+```
+
+Existing duplicate entries loaded from the task data file are preserved.

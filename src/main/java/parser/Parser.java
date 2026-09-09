@@ -218,7 +218,7 @@ public class Parser {
             boolean done = false;
             String description = words.get(1);
             Task out = new Task(description, done);
-            return new ArrayList<>(List.of(tasks.addTask(out)));
+            return new ArrayList<>(List.of(addTaskIfUnique(tasks, out)));
         } else if (commandType == CommandType.DEADLINE_SIGNATURE) {
             try {
                 ArrayList<String> words = Util.toArrayList(text, '|');
@@ -242,7 +242,7 @@ public class Parser {
                 String description = words.get(1);
                 LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
                 Task out = new DeadlineTask(description, done, byDate);
-                return new ArrayList<>(List.of(tasks.addTask(out)));
+                return new ArrayList<>(List.of(addTaskIfUnique(tasks, out)));
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
@@ -271,13 +271,27 @@ public class Parser {
                 LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
                 LocalDateTime toDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
                 Task out = new EventTask(description, done, fromDate, toDate);
-                return new ArrayList<>(List.of(tasks.addTask(out)));
+                return new ArrayList<>(List.of(addTaskIfUnique(tasks, out)));
             } catch (DateTimeParseException e) {
                 return new ArrayList<>(List.of("Error: Wrong time format"));
             }
         } else {
             throw new IllegalArgumentException("Unsupported add command type");
         }
+    }
+
+    /**
+     * Adds a user-created task only when an equivalent task is not already present.
+     *
+     * @param tasks the current task list
+     * @param task candidate task to add
+     * @return success or duplicate-task status message
+     */
+    private static String addTaskIfUnique(TaskList tasks, Task task) {
+        if (tasks.containsDuplicate(task)) {
+            return "Error: task already exists";
+        }
+        return tasks.addTask(task);
     }
 
     /**

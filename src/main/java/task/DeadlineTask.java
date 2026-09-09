@@ -103,6 +103,22 @@ public class DeadlineTask extends Task {
         return deadline;
     }
 
+    /**
+     * Checks whether another deadline task has the same description and deadline.
+     * Completion state is not considered when comparing tasks.
+     *
+     * @param other the object to compare with this task
+     * @return true if both objects represent the same deadline task
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        DeadlineTask otherTask = (DeadlineTask) other;
+        return this.deadline.equals(otherTask.deadline);
+    }
+
     @Override
     public String toSignature() {
         if (this.isDone()) {

@@ -79,6 +79,25 @@ public class Task {
     }
 
     /**
+     * Checks whether another task has the same type and description.
+     * Completion state is not considered when comparing tasks.
+     *
+     * @param other the object to compare with this task
+     * @return true if both objects represent the same task
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Task otherTask = (Task) other;
+        return this.description.equals(otherTask.description);
+    }
+
+    /**
      * Produces the user-facing text representation of the task.
      *
      * @return the display format of the task

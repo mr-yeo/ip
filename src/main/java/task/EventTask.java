@@ -143,6 +143,23 @@ public class EventTask extends Task {
         this.endTime = endTime;
     }
 
+    /**
+     * Checks whether another event task has the same description and time range.
+     * Completion state is not considered when comparing tasks.
+     *
+     * @param other the object to compare with this task
+     * @return true if both objects represent the same event task
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        EventTask otherTask = (EventTask) other;
+        return this.startTime.equals(otherTask.startTime)
+                && this.endTime.equals(otherTask.endTime);
+    }
+
     @Override
     public String toSignature() {
         if (this.isDone()) {

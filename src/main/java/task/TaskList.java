@@ -53,6 +53,24 @@ public class TaskList extends ArrayList<Task> {
     }
 
     /**
+     * Checks whether this list already contains a task equivalent to the given task.
+     * Completion state is ignored when comparing tasks.
+     *
+     * @param candidate task to compare against the tasks in this list
+     * @return true if an equivalent task is already present
+     */
+    public boolean containsDuplicate(Task candidate) {
+        assert candidate != null : "Duplicate checks require a task";
+        for (Task existingTask : this) {
+            assert existingTask != null : "A task list must not contain null tasks";
+            if (existingTask.equals(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * removes a task by index and returns the confirmation message for the user.
      * @param idx internal list index to remove
      * @return status message describing the removed task, or an error if invalid
