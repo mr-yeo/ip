@@ -87,40 +87,66 @@ public class Parser {
         CommandType commandType = findCommandType(text);
 
         if (isAddCommandType(commandType)) {
-            return parseAddCommand(text, tasks, commandType);
-        } else if (commandType == CommandType.EXIT) {
-            return new ArrayList<>(List.of(DestroyerOfWorlds.exit()));
-        } else if (commandType == CommandType.LIST) {
-            return new ArrayList<>(List.of(tasks.toString()));
+            return handleAddCommand(text, tasks, commandType);
         } else if (isIndexedTaskCommand(commandType)) {
             return handleIndexedTaskCommand(text, tasks, commandType);
         } else if (commandType == CommandType.FIND) {
             String keyword = text.substring(5).trim();
             return new ArrayList<>(List.of(tasks.findTasks(keyword)));
+        } else if (isSimpleCommand(commandType)) {
+            return handleSimpleCommand(tasks, commandType);
         } else {
             return new ArrayList<>(List.of("i dont know what you are saying"));
         }
     }
-        /**
-         * Checks whether a command operates on a task selected by its list index.
-         *
-         * @param commandType command type to check
-         * @return true for mark, unmark, and delete commands
-         */
-        private static boolean isIndexedTaskCommand(CommandType commandType) {
-            return commandType == CommandType.MARK
-                    || commandType == CommandType.UNMARK
-                    || commandType == CommandType.DELETE;
-        }
 
-        /**
-         * Executes a command that operates on a task selected by its list index.
-         *
-         * @param text raw user input
-         * @param tasks the current task list
-         * @param commandType the recognized indexed-task command
-         * @return command result payload
-         */
+    /**
+     * Checks whether a command takes no arguments.
+     *
+     * @param commandType command type to check
+     * @return true for exit and list commands
+     */
+    private static boolean isSimpleCommand(CommandType commandType) {
+        return commandType == CommandType.EXIT || commandType == CommandType.LIST;
+    }
+
+    /**
+     * Handles commands that take no arguments and do not select a task by index.
+     *
+     * @param tasks the current task list
+     * @param commandType the recognized command type
+     * @return command result payload
+     */
+    private static ArrayList<Object> handleSimpleCommand(TaskList tasks, CommandType commandType) {
+        if (commandType == CommandType.EXIT) {
+            return new ArrayList<>(List.of(DestroyerOfWorlds.exit()));
+        } else if (commandType == CommandType.LIST) {
+            return new ArrayList<>(List.of(tasks.toString()));
+        } else {
+            throw new IllegalArgumentException("Unsupported simple command type");
+        }
+    }
+
+    /**
+     * Checks whether a command operates on a task selected by its list index.
+     *
+     * @param commandType command type to check
+     * @return true for mark, unmark, and delete commands
+     */
+    private static boolean isIndexedTaskCommand(CommandType commandType) {
+        return commandType == CommandType.MARK
+                || commandType == CommandType.UNMARK
+                || commandType == CommandType.DELETE;
+    }
+
+    /**
+     * Executes a command that operates on a task selected by its list index.
+     *
+     * @param text raw user input
+     * @param tasks the current task list
+     * @param commandType the recognized indexed-task command
+     * @return command result payload
+     */
     private static ArrayList<Object> handleIndexedTaskCommand(
             String text, TaskList tasks, CommandType commandType) {
         try {
@@ -148,6 +174,100 @@ public class Parser {
             return new ArrayList<>(List.of(result));
         } catch (NumberFormatException e) {
             return new ArrayList<>(List.of(e.getMessage()));
+        }
+    }
+
+    /**
+     * Checks whether a command type creates a task.
+     *
+     * @param commandType command type to check
+     * @return true if the command type is an add command type
+     */
+    private static boolean isAddCommandType(CommandType commandType) {
+        return commandType == CommandType.TODO_SIGNATURE
+                || commandType == CommandType.TODO_COMMAND
+                || commandType == CommandType.DEADLINE_SIGNATURE
+                || commandType == CommandType.DEADLINE_COMMAND
+                || commandType == CommandType.EVENT_SIGNATURE
+                || commandType == CommandType.EVENT_COMMAND;
+    }
+
+    /**
+     * Parses a recognized add-task command handles it accordingly.
+     *
+     * @param text raw user input
+     * @param tasks the current task list
+     * @param commandType the recognized add-command format
+     * @return command result payload, with the status string as the first element
+     */
+    private static ArrayList<Object> handleAddCommand(
+            String text, TaskList tasks, CommandType commandType) {
+        if (commandType == CommandType.TODO_SIGNATURE) {
+            ArrayList<String> words = Util.toArrayList(text, '|');
+            boolean done = words.get(1).equals("1");
+            String description = words.get(2);
+            Task out = new Task(description, done);
+            return new ArrayList<>(List.of("Added: " + out.toString(), out));
+        } else if (commandType == CommandType.TODO_COMMAND) {
+            ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("todo ")));
+            boolean done = false;
+            String description = words.get(1);
+            Task out = new Task(description, done);
+            return new ArrayList<>(List.of(tasks.addTask(out)));
+        } else if (commandType == CommandType.DEADLINE_SIGNATURE) {
+            try {
+                ArrayList<String> words = Util.toArrayList(text, '|');
+                boolean done = words.get(1).equals("1");
+                String description = words.get(2);
+                LocalDateTime byDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
+                Task out = new DeadlineTask(description, done, byDate);
+                return new ArrayList<>(List.of("Added: " + out.toString(), out));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
+        } else if (commandType == CommandType.DEADLINE_COMMAND) {
+            try {
+                ArrayList<String> words = Util.toArrayList(
+                        text,
+                        new ArrayList<>(List.of("deadline ", " /by "))
+                );
+                boolean done = false;
+                String description = words.get(1);
+                LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
+                Task out = new DeadlineTask(description, done, byDate);
+                return new ArrayList<>(List.of(tasks.addTask(out)));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
+        } else if (commandType == CommandType.EVENT_SIGNATURE) {
+            try {
+                ArrayList<String> words = Util.toArrayList(text, '|');
+                boolean done = words.get(1).equals("1");
+                String description = words.get(2);
+                LocalDateTime fromDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
+                LocalDateTime toDate = LocalDateTime.parse(words.get(4).trim(), TIME_FORMAT);
+                Task out = new EventTask(description, done, fromDate, toDate);
+                return new ArrayList<>(List.of("Added: " + out.toString(), out));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
+        } else if (commandType == CommandType.EVENT_COMMAND) {
+            try {
+                ArrayList<String> words = Util.toArrayList(
+                        text,
+                        new ArrayList<>(List.of("event ", " /from ", " /to "))
+                );
+                boolean done = false;
+                String description = words.get(1);
+                LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
+                LocalDateTime toDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
+                Task out = new EventTask(description, done, fromDate, toDate);
+                return new ArrayList<>(List.of(tasks.addTask(out)));
+            } catch (DateTimeParseException e) {
+                return new ArrayList<>(List.of("Error: Wrong time format"));
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported add command type");
         }
     }
 
@@ -219,99 +339,5 @@ public class Parser {
             return CommandType.FIND;
         }
         return CommandType.NONE;
-    }
-
-    /**
-     * Checks whether a command type creates a task.
-     *
-     * @param commandType command type to check
-     * @return true if the command type is an add command type
-     */
-    private static boolean isAddCommandType(CommandType commandType) {
-        return commandType == CommandType.TODO_SIGNATURE
-                || commandType == CommandType.TODO_COMMAND
-                || commandType == CommandType.DEADLINE_SIGNATURE
-                || commandType == CommandType.DEADLINE_COMMAND
-                || commandType == CommandType.EVENT_SIGNATURE
-                || commandType == CommandType.EVENT_COMMAND;
-    }
-
-    /**
-     * Parses a recognized add-task command and creates or stores its task.
-     *
-     * @param text raw user input
-     * @param tasks the current task list
-     * @param commandType the recognized add-command format
-     * @return command result payload, with the status string as the first element
-     */
-    private static ArrayList<Object> parseAddCommand(
-            String text, TaskList tasks, CommandType commandType) {
-        if (commandType == CommandType.TODO_SIGNATURE) {
-            ArrayList<String> words = Util.toArrayList(text, '|');
-            boolean done = words.get(1).equals("1");
-            String description = words.get(2);
-            Task out = new Task(description, done);
-            return new ArrayList<>(List.of("Added: " + out.toString(), out));
-        } else if (commandType == CommandType.TODO_COMMAND) {
-            ArrayList<String> words = Util.toArrayList(text, new ArrayList<>(List.of("todo ")));
-            boolean done = false;
-            String description = words.get(1);
-            Task out = new Task(description, done);
-            return new ArrayList<>(List.of(tasks.addTask(out)));
-        } else if (commandType == CommandType.DEADLINE_SIGNATURE) {
-            try {
-                ArrayList<String> words = Util.toArrayList(text, '|');
-                boolean done = words.get(1).equals("1");
-                String description = words.get(2);
-                LocalDateTime byDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
-                Task out = new DeadlineTask(description, done, byDate);
-                return new ArrayList<>(List.of("Added: " + out.toString(), out));
-            } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
-            }
-        } else if (commandType == CommandType.DEADLINE_COMMAND) {
-            try {
-                ArrayList<String> words = Util.toArrayList(
-                        text,
-                        new ArrayList<>(List.of("deadline ", " /by "))
-                );
-                boolean done = false;
-                String description = words.get(1);
-                LocalDateTime byDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
-                Task out = new DeadlineTask(description, done, byDate);
-                return new ArrayList<>(List.of(tasks.addTask(out)));
-            } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
-            }
-        } else if (commandType == CommandType.EVENT_SIGNATURE) {
-            try {
-                ArrayList<String> words = Util.toArrayList(text, '|');
-                boolean done = words.get(1).equals("1");
-                String description = words.get(2);
-                LocalDateTime fromDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
-                LocalDateTime toDate = LocalDateTime.parse(words.get(4).trim(), TIME_FORMAT);
-                Task out = new EventTask(description, done, fromDate, toDate);
-                return new ArrayList<>(List.of("Added: " + out.toString(), out));
-            } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
-            }
-        } else if (commandType == CommandType.EVENT_COMMAND) {
-            try {
-                ArrayList<String> words = Util.toArrayList(
-                        text,
-                        new ArrayList<>(List.of("event ", " /from ", " /to "))
-                );
-                boolean done = false;
-                String description = words.get(1);
-                LocalDateTime fromDate = LocalDateTime.parse(words.get(2).trim(), TIME_FORMAT);
-                LocalDateTime toDate = LocalDateTime.parse(words.get(3).trim(), TIME_FORMAT);
-                Task out = new EventTask(description, done, fromDate, toDate);
-                return new ArrayList<>(List.of(tasks.addTask(out)));
-            } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported add command type");
-        }
     }
 }
