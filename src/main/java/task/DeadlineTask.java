@@ -21,6 +21,7 @@ public class DeadlineTask extends Task {
      */
     public DeadlineTask(String description, LocalDateTime deadline) {
         super(description);
+        assert deadline != null : "Deadline tasks must have a deadline";
         this.timeFormat = DEFAULT_TIME_FORMAT;
         this.deadline = deadline;
     }
@@ -60,6 +61,7 @@ public class DeadlineTask extends Task {
      */
     public DeadlineTask(String description, boolean done, LocalDateTime deadline) {
         super(description, done);
+        assert deadline != null : "Deadline tasks must have a deadline";
         this.timeFormat = DEFAULT_TIME_FORMAT;
         this.deadline = deadline;
     }

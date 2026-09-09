@@ -22,6 +22,7 @@ public class Storage {
      * @param filePath the path to the task data file
      */
     public Storage(String filePath) {
+        assert filePath != null : "Storage requires a task file path";
         this.taskFile = new File(filePath);
     }
 
@@ -56,6 +57,7 @@ public class Storage {
      * @throws IOException when the file cannot be written to
      */
     public void save(TaskList tasks) throws IOException {
+        assert tasks != null : "Storage cannot save a null task list";
         FileWriter writer = new FileWriter(taskFile);
         writer.write(tasks.toSignature());
         writer.close();
