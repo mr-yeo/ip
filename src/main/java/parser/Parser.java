@@ -99,7 +99,7 @@ public class Parser {
         } else if (isSimpleCommand(commandType)) {
             return handleSimpleCommand(tasks, commandType);
         } else {
-            return new ArrayList<>(List.of("i dont know what you are saying"));
+            return new ArrayList<>(List.of("REEEEAAAUUU!!!"));
         }
     }
 
@@ -161,7 +161,7 @@ public class Parser {
             } else if (commandType == CommandType.DELETE) {
                 commandNameLength = 6;
             } else {
-                throw new IllegalArgumentException("Unsupported indexed task command");
+                throw new IllegalArgumentException("REEEEAAAUUU: INDEX OUT OF BOUNDS!!!");
             }
             int taskNumber = Util.trimAndExtractInteger(text, commandNameLength);
             String result;
@@ -172,12 +172,24 @@ public class Parser {
             } else if (commandType == CommandType.DELETE) {
                 result = tasks.removeTask(taskNumber - 1);
             } else {
-                throw new IllegalArgumentException("Unsupported indexed task command");
+                throw new IllegalArgumentException("REEEEAAAUUU: INDEX OUT OF BOUNDS!!!");
             }
             return new ArrayList<>(List.of(result));
         } catch (NumberFormatException e) {
-            return new ArrayList<>(List.of(e.getMessage()));
+            return new ArrayList<>(List.of("REEEEAAAUUU: " + e.getMessage()));
         }
+    }
+
+    /**
+     * Checks whether a command result string represents an error rather than a normal status
+     * update, based on the app's error-message convention (messages beginning with the
+     * "REEEEAAAUUU"/"RIEEEEAAAU" prefixes used throughout the parser and task list).
+     *
+     * @param message the result string returned by {@link #parseCommand}
+     * @return true if the message signals an error to the user
+     */
+    public static boolean isErrorMessage(String message) {
+        return message != null && (message.contains("REEEEAAAUUU") || message.contains("RIEEEEAAAU"));
     }
 
     /**
@@ -229,7 +241,7 @@ public class Parser {
                 Task out = new DeadlineTask(description, done, byDate);
                 return new ArrayList<>(List.of("Added: " + out.toString(), out));
             } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
+                return new ArrayList<>(List.of("REEEEAAAUUU: WRONG TIME FORMAT!!!"));
             }
         } else if (commandType == CommandType.DEADLINE_COMMAND) {
             try {
@@ -244,7 +256,7 @@ public class Parser {
                 Task out = new DeadlineTask(description, done, byDate);
                 return new ArrayList<>(List.of(addTaskIfUnique(tasks, out)));
             } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
+                return new ArrayList<>(List.of("REEEEAAAUUU: WRONG TIME FORMAT!!!"));
             }
         } else if (commandType == CommandType.EVENT_SIGNATURE) {
             try {
@@ -257,7 +269,7 @@ public class Parser {
                 Task out = new EventTask(description, done, fromDate, toDate);
                 return new ArrayList<>(List.of("Added: " + out.toString(), out));
             } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
+                return new ArrayList<>(List.of("REEEEAAAUUU: WRONG TIME FORMAT!!!"));
             }
         } else if (commandType == CommandType.EVENT_COMMAND) {
             try {
@@ -273,7 +285,7 @@ public class Parser {
                 Task out = new EventTask(description, done, fromDate, toDate);
                 return new ArrayList<>(List.of(addTaskIfUnique(tasks, out)));
             } catch (DateTimeParseException e) {
-                return new ArrayList<>(List.of("Error: Wrong time format"));
+                return new ArrayList<>(List.of("REEEEAAAUUU: WRONG TIME FORMAT!!!"));
             }
         } else {
             throw new IllegalArgumentException("Unsupported add command type");
@@ -289,7 +301,7 @@ public class Parser {
      */
     private static String addTaskIfUnique(TaskList tasks, Task task) {
         if (tasks.containsDuplicate(task)) {
-            return "Error: task already exists";
+            return "REEEEAAAUUU: TASK ALREADY EXISTS!!!!";
         }
         return tasks.addTask(task);
     }

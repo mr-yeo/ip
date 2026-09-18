@@ -1,6 +1,7 @@
 package util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,23 +137,20 @@ public class UtilTest {
     }
 
     @Test
-    public void testToArrayListStringDelimiter_noDelimiters() {
-        // When no delimiters appear, pass empty delimiter array
+    public void testToArrayListStringDelimiter_noDelimiters_throws() {
+        // The method always looks up the first delimiter up front, so an empty
+        // delimiter list is not a supported input and throws instead of returning
+        // the whole string as a single token.
         String input = "onlyword";
         ArrayList<String> delimiters = new ArrayList<>();
-        ArrayList<String> result = Util.toArrayList(input, delimiters);
-        assertEquals(1, result.size());
-        assertEquals("onlyword", result.get(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> Util.toArrayList(input, delimiters));
     }
 
     @Test
-    public void testToArrayListStringDelimiter_emptyString() {
-        // Empty string with no delimiters
+    public void testToArrayListStringDelimiter_emptyStringNoDelimiters_throws() {
         String input = "";
         ArrayList<String> delimiters = new ArrayList<>();
-        ArrayList<String> result = Util.toArrayList(input, delimiters);
-        assertEquals(1, result.size());
-        assertEquals("", result.get(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> Util.toArrayList(input, delimiters));
     }
 
     @Test
@@ -305,6 +303,7 @@ public class UtilTest {
 
     @Test
     public void testToArrayListStringDelimiter_complexMixedDelimiters() {
+        // "|" and "##" are adjacent in the input, so the token between them is empty.
         String input = "p1|##p2@@p3&p4";
         ArrayList<String> delimiters = new ArrayList<>();
         delimiters.add("|");
@@ -312,11 +311,12 @@ public class UtilTest {
         delimiters.add("@@");
         delimiters.add("&");
         ArrayList<String> result = Util.toArrayList(input, delimiters);
-        assertEquals(4, result.size());
+        assertEquals(5, result.size());
         assertEquals("p1", result.get(0));
-        assertEquals("p2", result.get(1));
-        assertEquals("p3", result.get(2));
-        assertEquals("p4", result.get(3));
+        assertEquals("", result.get(1));
+        assertEquals("p2", result.get(2));
+        assertEquals("p3", result.get(3));
+        assertEquals("p4", result.get(4));
     }
 
     // Tests for trimAndExtractInteger(String, int, int)

@@ -26,7 +26,7 @@ public class TaskList extends ArrayList<Task> {
     public String setTask(int idx, boolean done) {
         try {
             if (idx < 0 || idx >= this.size()) {
-                throw new NullPointerException("task doesnt exist");
+                throw new NullPointerException("RIEEEEAAAU: INVALID INDEX!");
             } else {
                 this.get(idx).setDone(done);
                 int num = idx + 1;
@@ -37,7 +37,7 @@ public class TaskList extends ArrayList<Task> {
                 }
             }
         } catch (NullPointerException e) {
-            return "Error: " + e.getMessage();
+            return e.getMessage();
         }
     }
 
@@ -80,7 +80,7 @@ public class TaskList extends ArrayList<Task> {
             Task removed = this.remove(idx);
             return "Removed: " + removed.toString();
         } catch (IndexOutOfBoundsException e) {
-            return "Error: task doesnt exist";
+            return "RIEEEEAAAU: INVALID INDEX!";
         }
     }
 
@@ -109,7 +109,7 @@ public class TaskList extends ArrayList<Task> {
         }
 
         if (matchCount == 0) {
-            return "Error: no matching tasks found";
+            return "RIEEEEAAAU: NO MATCHING TASKS!";
         }
         return "Here are the matching tasks in your list:\n" + matches;
     }
@@ -147,7 +147,7 @@ public class TaskList extends ArrayList<Task> {
     public String toString() {
         try {
             if (this.isEmpty()) {
-                throw new ListEmptyException("History is empty");
+                throw new ListEmptyException("RIEEEEAAAU: HISTORY IS EMPTY");
             } else {
                 String out = "1. ";
 
@@ -162,7 +162,7 @@ public class TaskList extends ArrayList<Task> {
                 return out;
             }
         } catch (ListEmptyException e) {
-            return "Error: " + e.getMessage();
+            return e.getMessage();
         }
     }
 }

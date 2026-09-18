@@ -59,9 +59,8 @@ public class DestroyerOfWorlds {
      */
     public static String start() {
         exit = false;
-        String banner = "\nHello I'm DESTROYEROFWORLDS\nPrepare to meet you DOOM!\n"
-                + "____________________________________"
-                + "\nWhat do you want from me Nerd!?!?!, Can't you see I'm busy:";
+        String banner = "You feel a quaking from deep underground...\n" +
+                "The DESTROYER OF WORLDS has awoken\n";
 
         loadTasks();
         return banner;

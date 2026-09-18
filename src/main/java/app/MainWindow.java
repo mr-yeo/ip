@@ -27,17 +27,20 @@ public class MainWindow extends AnchorPane {
     @FXML
     private Button sendButton;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
+    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/goblin1.png"));
     private Image destroyerImage = new Image(this.getClass().getResourceAsStream("/images/DaDestroyerOfWorlds.png"));
 
     /**
-     * Binds the scroll position and displays the initial welcome message.
+     * Binds the scroll position and dialog width to the viewport so message bubbles
+     * reflow correctly as the window is resized, then displays the welcome message.
      */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        scrollPane.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) ->
+                dialogContainer.setPrefWidth(newBounds.getWidth()));
         dialogContainer.getChildren().addAll(
-                DialogBox.getDestroyerOfWorldsDialog(DestroyerOfWorlds.start(), destroyerImage)
+                DialogBox.getDestroyerOfWorldsDialog(DestroyerOfWorlds.start(), destroyerImage, false)
         );
     }
 
@@ -53,9 +56,10 @@ public class MainWindow extends AnchorPane {
         String response = (String) output.get(0);
         DestroyerOfWorlds.updateTaskFile();
         boolean shouldClose = "bye".equals(input.trim());
+        boolean isError = Parser.isErrorMessage(response);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getDestroyerOfWorldsDialog(response, destroyerImage)
+                DialogBox.getDestroyerOfWorldsDialog(response, destroyerImage, isError)
         );
         userInput.clear();
 
