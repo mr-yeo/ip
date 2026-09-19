@@ -24,6 +24,31 @@ public class Storage {
     public Storage(String filePath) {
         assert filePath != null : "Storage requires a task file path";
         this.taskFile = new File(filePath);
+        
+        try {
+            // 1. Get the parent directory structure
+            File parentDir = taskFile.getParentFile();
+            
+            // 2. Create parent directories if they don't exist
+            if (parentDir != null && !parentDir.exists()) {
+                if (parentDir.mkdirs()) {
+                    System.out.println("Directory path created successfully.");
+                } else {
+                    System.out.println("Failed to create directory path.");
+                }
+            }
+
+            // 3. Create the actual file if it doesn't exist
+            if (taskFile.createNewFile()) {
+                System.out.println("File created successfully: " + taskFile.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+
+        } catch (IOException e) {
+            System.err.println("An I/O error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
